@@ -23,12 +23,13 @@ const subcategorySchema = new Schema({
         type: Types.ObjectId,
         ref: "Category",
         required: [true, 'categoryId is required']
-    }
+    },
+    public_id: String
 
 }, {
     timestamps: true
 })
 
 
-const subcategoryModel = model('SubcategorySchema', subcategorySchema)
+const subcategoryModel = model('Subcategory', subcategorySchema)
 export default subcategoryModel

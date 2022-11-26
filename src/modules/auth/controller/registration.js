@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { sendEmail } from '../../../services/email.js';
 import { asyncHandler } from '../../../services/asyncHandler.js';
-import { findOne, saveUser, findById, findByIdAndUpdate } from '../../../../DB/DBMethods.js';
+import { findOne, create, findById, findByIdAndUpdate } from '../../../../DB/DBMethods.js';
 
 
 export const signUp = async (req, res, next) => {
@@ -25,7 +25,7 @@ export const signUp = async (req, res, next) => {
         if this link expired please click here to get a new link <a href = "${refreshLink}">here</a>`
         let result = await sendEmail(email, 'confirm to register', message);
         if (result.accepted.length) {
-            let saved = await saveUser(userModel, addUser);
+            let saved = await create(userModel, addUser);
             res.status(201).json({ message: "Added", saved })
         } else {
             next(new Error("invalid Email", { cause: 404 }))

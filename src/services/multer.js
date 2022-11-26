@@ -5,16 +5,16 @@ export const fileValidation = {
 
 }
 
-// export const HME = (err, req, res, next) => {
-//     if (err) {
-//         res.status(400).json({ message: "Multer error", err })
-//     } else {
-//         next()
-//     }
-// }
+export const HME = (err, req, res, next) => {
+    if (err) {
+        res.status(400).json({ message: "Multer error", err })
+    } else {
+        next()
+    }
+}
 
-export function myMulter(customValidation=fileValidation.image) {
- 
+export function myMulter(customValidation = fileValidation.image) {
+
     const storage = multer.diskStorage({})
 
     function fileFilter(req, file, cb) {

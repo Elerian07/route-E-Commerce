@@ -18,7 +18,8 @@ const categorySchema = new Schema({
         type: Types.ObjectId,
         ref: "User",
         required: [true, 'createdBy is required']
-    }
+    },
+    public_id: String
 
 }, {
     timestamps: true
