@@ -3,12 +3,12 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { sendEmail } from '../../../services/email.js';
 import { asyncHandler } from '../../../services/asyncHandler.js';
-import { findOne, create, findById, findByIdAndUpdate } from '../../../../DB/DBMethods.js';
+import { findOne, create, findById, findByIdAndUpdate, findOneAndUpdate } from '../../../../DB/DBMethods.js';
 
 
 export const signUp = async (req, res, next) => {
     const { userName, email, password } = req.body;
-    let user = await findOne(userModel, { email }, "email");
+    let user = await findOne({ model: userModel, condition: { email }, select: "email" });
     if (user) {
         next(new Error("this email already register", { cause: 409 }))
     } else {
@@ -25,7 +25,7 @@ export const signUp = async (req, res, next) => {
         if this link expired please click here to get a new link <a href = "${refreshLink}">here</a>`
         let result = await sendEmail(email, 'confirm to register', message);
         if (result.accepted.length) {
-            let saved = await create(userModel, addUser);
+            let saved = await create({ model: userModel, data: addUser });
             res.status(201).json({ message: "Added", saved })
         } else {
             next(new Error("invalid Email", { cause: 404 }))
@@ -42,10 +42,10 @@ export const confirmEmail = asyncHandler(async (req, res, next) => {
         next(new Error("invalid token", { cause: 400 }))
     } else {
 
-        let user = await findById(userModel, { _id: decoded.id, confirmEmail: false })
+        let user = await findById({ model: userModel, condition: { _id: decoded.id, confirmEmail: false } })
         if (user) {
             if (confirmEmail != true) {
-                let updated = await findByIdAndUpdate(userModel, { _id: decoded.id }, { confirmEmail: true }, { new: true })
+                let updated = await findByIdAndUpdate({ model: userModel, condition: { _id: decoded.id }, data: { confirmEmail: true }, options: { new: true } })
                 res.status(200).json({ message: "confirmed", updated })
             } else {
                 next(new Error("you are already confirmed", { cause: 400 }))
@@ -64,7 +64,7 @@ export const refresh = asyncHandler(async (req, res, next) => {
     if (!decoded && !decoded.id) {
         next(new Error("invalid token or id", { cause: 400 }))
     } else {
-        let user = await findById(userModel, decoded.id)
+        let user = await findById({ model: userModel, condition: decoded.id })
         if (user) {
             if (user.confirmEmail) {
                 next(new Error("this email is confirmed", { cause: 409 }))
@@ -85,7 +85,7 @@ export const refresh = asyncHandler(async (req, res, next) => {
 export const login = asyncHandler(async (req, res, next) => {
 
     const { email, password } = req.body;
-    let user = await findOne(userModel, { email });
+    let user = await findOne({ model: userModel, condition: { email } });
     if (!user) {
         next(new Error("invalid Email", { cause: 404 }))
     } else {
@@ -103,3 +103,19 @@ export const login = asyncHandler(async (req, res, next) => {
     }
 
 })
+
+export const updateRole = async (req, res, next) => {
+    let { userId } = req.body;
+    let user = await findById({ model: userModel, condition: { _id: userId } });
+    if (!user) {
+        next(new Error("user not found", { cause: 404 }))
+    } else {
+        if (!user.confirmEmail) {
+            next(new Error("you need to confirm your email first", { cause: 400 }))
+        } else {
+
+            let updatedRole = await findByIdAndUpdate({ model: userModel, condition: { _id: userId }, data: { role: 'Admin' }, options: { new: true } })
+            res.status(200).json({ message: "Role Updated", updatedRole })
+        }
+    }
+}

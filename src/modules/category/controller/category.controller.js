@@ -14,14 +14,14 @@ export const addCategory = asyncHandler(async (req, res, next) => {
         let { secure_url, public_id } = await cloudinary.uploader.upload(req.file.path, {
             folder: "category"
         })
-        let result = await create(categoryModel, { name, image: secure_url, createdBy: req.user._id, public_id })
+        let result = await create({ model: categoryModel, data: { name, image: secure_url, createdBy: req.user._id, public_id } })
         res.status(201).json({ message: "Category Created", result })
     }
 })
 
 export const findCategory = asyncHandler(async (req, res, next) => {
     let { search } = req.query;
-    let category = await findOne(categoryModel, { name: search });
+    let category = await findOne({ model: categoryModel, condition: { name: search } });
     if (!category) {
         next(new Error("Category not found", { cause: 404 }))
     } else {
@@ -31,13 +31,13 @@ export const findCategory = asyncHandler(async (req, res, next) => {
 
 export const deleteCategory = asyncHandler(async (req, res, next) => {
     let { id } = req.params;
-    let category = await findById(categoryModel, { _id: id })
+    let category = await findById({ model: categoryModel, condition: { _id: id } })
     if (!category) {
         next(new Error("Category not found", { cause: 404 }))
     } else {
         if (category.createdBy.equals(req.user._id)) {
             let deletedImage = await cloudinary.uploader.destroy(category.public_id)
-            let deletedCategory = await findByIdAndDelete(categoryModel, { _id: id })
+            let deletedCategory = await findByIdAndDelete({ model: categoryModel, condition: { _id: id } })
             res.status(200).json({ message: "Category has been deleted", deletedCategory })
         } else {
             next(new Error("you are not authorized to delete this category", { cause: 403 }))
@@ -48,22 +48,28 @@ export const deleteCategory = asyncHandler(async (req, res, next) => {
 
 
 export const updateCategory = asyncHandler(async (req, res, next) => {
-    let { _id } = req.params;
-    if (req.file) {
-        const { secure_url, public_id } = await cloudinary.uploader.upload(req.file.path, {
-            folder: "category"
-        })
-        req.body.image = secure_url
-        req.body.publicImageId = public_id
-    }
-    const result = await categoryModel.findByIdAndUpdate(_id, req.body, { new: true })
-    if (!result) {
-        await cloudinary.uploader.destroy(req.body.publicImageId)
+    let { id } = req.params;
+    let { name } = req.body;
+    const category = await findById({ model: categoryModel, condition: id });
+    if (!category) {
         next(new Error("category not found", { cause: 404 }))
     } else {
-        await cloudinary.uploader.destroy(result.publicImageId)
+        if (req.file) {
+            let imgUrl = "";
+            let publicImageId = "";
+            await cloudinary.uploader.destroy(category.public_id)
+            const { secure_url, public_id } = await cloudinary.uploader.upload(req.file.path, {
+                folder: "category"
+            })
+            imgUrl = secure_url
+            publicImageId = public_id
+        } else {
+            imgUrl = category.image;
+            publicImageId = category.public_id;
+        }
 
-        res.status(200).json({ message: "updated", result })
+        let updated = await findByIdAndUpdate({ model: categoryModel, condition: id, data: { name, image: imgUrl, public_id: publicImageId }, options: { new: true } })
+        res.status(200).json({ message: "updated", updated })
     }
 
 })
