@@ -22,10 +22,10 @@ export const deleteSchema = {
 
 export const updateSchema = {
     params: joi.object().required().keys({
-        id: joi.string().required()
+        _id: joi.string().required()
     }),
     body: joi.object().required().keys({
-        name: joi.string().min(2).max(20).required(),
+        name: joi.string().min(2).max(20),
         image: joi.any(),
         public_id: joi.string()
     })

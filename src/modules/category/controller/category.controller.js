@@ -1,4 +1,4 @@
-import { create, deleteOne, findById, findByIdAndDelete, findByIdAndUpdate, findOne, updateOne } from "../../../../DB/DBMethods.js";
+import { create, deleteOne, findById, findByIdAndDelete, findByIdAndUpdate, findOne, findOneAndUpdate, updateOne } from "../../../../DB/DBMethods.js";
 import categoryModel from "../../../../DB/model/category.model.js";
 import userModel from "../../../../DB/model/User.model.js";
 import { asyncHandler } from "../../../services/asyncHandler.js";
@@ -48,28 +48,30 @@ export const deleteCategory = asyncHandler(async (req, res, next) => {
 
 
 export const updateCategory = asyncHandler(async (req, res, next) => {
-    let { id } = req.params;
+    let { _id } = req.params;
     let { name } = req.body;
-    const category = await findById({ model: categoryModel, condition: id });
+    const category = await findById({ model: categoryModel, condition: _id });
     if (!category) {
-        next(new Error("category not found", { cause: 404 }))
+        next(new Error("category not found", { cause: 404 }));
     } else {
+        let imgUrl = "";
+        let publicImgId = "";
         if (req.file) {
-            let imgUrl = "";
-            let publicImageId = "";
             await cloudinary.uploader.destroy(category.public_id)
-            const { secure_url, public_id } = await cloudinary.uploader.upload(req.file.path, {
-                folder: "category"
-            })
-            imgUrl = secure_url
-            publicImageId = public_id
+
+            let { secure_url, public_id } = await cloudinary.uploader.upload(req.file.path, { folder: "category" });
+            imgUrl = secure_url;
+            publicImgId = public_id;
+
         } else {
             imgUrl = category.image;
-            publicImageId = category.public_id;
+            publicImgId = category.public_id;
         }
-
-        let updated = await findByIdAndUpdate({ model: categoryModel, condition: id, data: { name, image: imgUrl, public_id: publicImageId }, options: { new: true } })
-        res.status(200).json({ message: "updated", updated })
+        let updatedCategory = await findByIdAndUpdate({
+            model: categoryModel, condition: { _id },
+            data: { name, image: imgUrl, public_id: publicImgId },
+            options: { new: true }
+        });
+        res.status(200).json({ message: "updated", updatedCategory })
     }
-
 })

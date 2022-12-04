@@ -16,7 +16,7 @@ export const addSubcategory = asyncHandler(async (req, res, next) => {
             folder: "category/subcategory"
         })
         let result = await create({ model: subcategoryModel, data: { name, image: secure_url, createdBy: req.user._id, categoryId: id, public_id } })
-        res.status(201).json({ message: "Category Created", result })
+        res.status(201).json({ message: "Subcategory Created", result })
     }
 })
 
@@ -47,22 +47,31 @@ export const findSubcategory = asyncHandler(async (req, res, next) => {
 })
 
 export const updateSubcategory = asyncHandler(async (req, res, next) => {
-    let { id } = req.body;
-    let subcategory = await findById({ model: subcategoryModel, condition: id })
-    if (req.file) {
-        let { secure_url, public_id } = await cloudinary.uploader.upload(req.file.path, {
-            folder: "category/subcategory"
-        })
-        req.body.image = secure_url;
-        req.body.public_id = public_id;
-    }
+    let { _id } = req.params;
+    let { name } = req.body;
+    const subcategory = await findById({ model: subcategoryModel, condition: _id });
     if (!subcategory) {
-        await cloudinary.uploader.destroy(req.body.public_id)
-        next(new Error("subcategory not found", { cause: 404 }))
+        next(new Error("subcategory not found", { cause: 404 }));
     } else {
-        let result = await findByIdAndUpdate({ model: subcategoryModel, condition: id, data: req.body, options: { new: true } })
-        await cloudinary.uploader.destroy(result.public_id);
-        res.status(200).json({ message: "Updated", result })
+        let imgUrl = "";
+        let publicImgId = "";
+        if (req.file) {
+            await cloudinary.uploader.destroy(subcategory.public_id)
+
+            let { secure_url, public_id } = await cloudinary.uploader.upload(req.file.path, { folder: "category/subcategory" });
+            imgUrl = secure_url;
+            publicImgId = public_id;
+
+        } else {
+            imgUrl = category.image;
+            publicImgId = category.public_id;
+        }
+        let updatedSubcategory = await findByIdAndUpdate({
+            model: subcategoryModel, condition: { _id },
+            data: { name, image: imgUrl, public_id: publicImgId },
+            options: { new: true }
+        });
+        res.status(200).json({ message: "updated", updatedSubcategory })
     }
 
 

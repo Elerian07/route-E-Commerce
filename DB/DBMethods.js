@@ -6,7 +6,7 @@ export const find = async ({ model, condition, select, limit = 10, skip = 0, pop
     let result = await model.find(condition).skip(skip).limit(limit).select(select).populate(populate);
     return result;
 }
-export const findOne = async ({ model, condition, select, populate = [] } = {}) => {
+export const findOne = async ({ model, condition = {}, select, populate = [] } = {}) => {
     let result = await model.findOne(condition).select(select).populate(populate);
     return result;
 }
@@ -14,7 +14,7 @@ export const findById = async ({ model, condition, select, populate = [] } = {})
     let result = await model.findById(condition).select(select).populate(populate);
     return result;
 }
-export const findByIdAndUpdate = async ({ model, condition, data, options } = {}) => {
+export const findByIdAndUpdate = async ({ model, condition, data = {}, options } = {}) => {
     const result = await model.findByIdAndUpdate(condition, data, options);
     return result;
 }

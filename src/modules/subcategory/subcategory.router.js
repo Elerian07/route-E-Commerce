@@ -13,6 +13,6 @@ router.post("/", validation(addSchema), auth(endPoints.addSubcategory), myMulter
 router.delete("/:subId", validation(deleteSchema), auth(endPoints.deleteSubcategory), subcategoryController.deleteSubcategory)
 
 router.get("/", validation(findSchema), auth(), subcategoryController.findSubcategory)
-router.put("/:id", validation(updateSchema), auth(endPoints.updateSubcategory), myMulter(fileValidation.image).single("image"), HME, subcategoryController.updateSubcategory)
+router.put("/:_id", validation(updateSchema), auth(endPoints.updateSubcategory), myMulter(fileValidation.image).single("image"), HME, subcategoryController.updateSubcategory)
 
 export default router

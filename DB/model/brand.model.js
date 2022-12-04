@@ -1,3 +1,4 @@
+
 import { Schema, model, Types } from "mongoose";
 
 
@@ -9,6 +10,7 @@ const brandSchema = new Schema({
         max: [20, 'category name max length 2 char']
 
     },
+    slug: String,
     addBy: {
         type: Types.ObjectId,
         ref: "User",
@@ -17,7 +19,8 @@ const brandSchema = new Schema({
     logo: {
         type: String,
         required: [true, 'Logo image is required'],
-    }
+    },
+    public_id: String
 
 }, {
     timestamps: true

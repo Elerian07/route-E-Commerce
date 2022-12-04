@@ -18,5 +18,5 @@ router.get("/", validation(findSchema), auth(), categoryController.findCategory)
 
 router.delete("/:id", validation(deleteSchema), auth(endPoints.deleteCategory), categoryController.deleteCategory)
 
-router.put("/:_id", auth(endPoints.updateCategory), categoryController.updateCategory)
+router.put("/:_id", validation(updateSchema), auth(endPoints.updateCategory), myMulter(fileValidation.image).single("image"), HME, categoryController.updateCategory)
 export default router
