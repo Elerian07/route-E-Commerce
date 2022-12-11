@@ -7,30 +7,35 @@ import { findOne, create, findById, findByIdAndUpdate, findOneAndUpdate } from '
 
 
 export const signUp = async (req, res, next) => {
-    const { userName, email, password } = req.body;
-    let user = await findOne({ model: userModel, condition: { email }, select: "email" });
-    if (user) {
-        next(new Error("this email already register", { cause: 409 }))
-    } else {
-        let hashed = bcrypt.hashSync(password, parseInt(process.env.SALTROUND));
-        let addUser = new userModel({ userName, email, password: hashed });
-
-
-        let token = jwt.sign({ id: addUser._id, isLoggedIn: true }, process.env.emailToken, { expiresIn: '1h' })
-        let refreshToken = jwt.sign({ id: addUser._id, isLoggedIn: true }, process.env.refreshEmailToken, { expiresIn: 60 * 60 * 24 })
-        let link = `${req.protocol}://${req.headers.host}${process.env.BASEURL}/auth/confirmEmail/${token}`
-        let refreshLink = `${req.protocol}://${req.headers.host}${process.env.BASEURL}/auth/refreshToken/${refreshToken}`
-        let message = `please click here to verify your email <a href="${link}">here</a>
-        <br/>
-        if this link expired please click here to get a new link <a href = "${refreshLink}">here</a>`
-        let result = await sendEmail(email, 'confirm to register', message);
-        if (result.accepted.length) {
-            let saved = await create({ model: userModel, data: addUser });
-            res.status(201).json({ message: "Added", saved })
+    const { userName, email, password, cPassword } = req.body;
+    if (password == cPassword) {
+        let user = await findOne({ model: userModel, condition: { email }, select: "email" });
+        if (user) {
+            next(new Error("this email already register", { cause: 409 }))
         } else {
-            next(new Error("invalid Email", { cause: 404 }))
+            let hashed = bcrypt.hashSync(password, parseInt(process.env.SALTROUND));
+            let addUser = new userModel({ userName, email, password: hashed });
 
+
+            let token = jwt.sign({ id: addUser._id, isLoggedIn: true }, process.env.emailToken, { expiresIn: '1h' })
+            let refreshToken = jwt.sign({ id: addUser._id, isLoggedIn: true }, process.env.refreshEmailToken, { expiresIn: 60 * 60 * 24 })
+            let link = `${req.protocol}://${req.headers.host}${process.env.BASEURL}/auth/confirmEmail/${token}`
+            let refreshLink = `${req.protocol}://${req.headers.host}${process.env.BASEURL}/auth/refreshToken/${refreshToken}`
+            let message = `please click here to verify your email <a href="${link}">here</a>
+            <br/>
+            if this link expired please click here to get a new link <a href = "${refreshLink}">here</a>`
+            let result = await sendEmail(email, 'confirm to register', message);
+            if (result.accepted.length) {
+                let saved = await create({ model: userModel, data: addUser });
+                res.status(201).json({ message: "Added", saved })
+            } else {
+                next(new Error("invalid Email", { cause: 404 }))
+
+            }
         }
+    } else {
+        next(new Error("password and cPassword doesn't match", { cause: 400 }))
+
     }
 }
 

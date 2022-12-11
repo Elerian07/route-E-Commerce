@@ -52,3 +52,8 @@ export const deleteOne = async ({ model, condition = {}, filter = {} } = {}) => 
     const deleted = await model.deleteOne(condition, filter);
     return deleted;
 }
+
+export const deleteMany = async ({ model, condition = {} } = {}) => {
+    const deleted = await model.deleteMany(condition);
+    return deleted
+}

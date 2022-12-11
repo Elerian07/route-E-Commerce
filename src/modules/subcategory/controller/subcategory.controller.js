@@ -63,8 +63,8 @@ export const updateSubcategory = asyncHandler(async (req, res, next) => {
             publicImgId = public_id;
 
         } else {
-            imgUrl = category.image;
-            publicImgId = category.public_id;
+            imgUrl = subcategory.image;
+            publicImgId = subcategory.public_id;
         }
         let updatedSubcategory = await findByIdAndUpdate({
             model: subcategoryModel, condition: { _id },

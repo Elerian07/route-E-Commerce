@@ -41,6 +41,7 @@ const userSchema = new Schema({
         default: false,
     },
     image: String,
+    public_id: String,
     DOB: String,
 }, {
     timestamps: true
