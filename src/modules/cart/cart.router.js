@@ -1,12 +1,11 @@
 import { Router } from "express";
+import { auth } from "../../middleware/auth.js";
+import { endpoints } from "./cart.endPoint.js";
+import * as cartController from './controller/cart.controller.js';
 const router = Router()
 
 
-
-
-router.get('/', (req ,res)=>{
-    res.status(200).json({message:"Cart Module"})
-})
+router.post("/", auth(endpoints.create), cartController.createCart)
 
 
 
