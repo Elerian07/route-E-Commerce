@@ -2,7 +2,7 @@ import { Router } from "express";
 import { auth } from "../../middleware/auth.js";
 import { asyncHandler } from "../../services/asyncHandler.js";
 import { endpoints } from "./wishList.endpoints.js";
-import * as wishListController from './wishList.controller.js/wishList.controller.js';
+import * as wishListController from './controller/wishList.controller.js';
 const router = Router({ mergeParams: true })
 
 

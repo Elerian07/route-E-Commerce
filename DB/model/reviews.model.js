@@ -20,6 +20,8 @@ const reviewsSchema = new Schema({
     },
     rating: {
         type: String,
+        min: [1, "rating Average must be greater than 1"],
+        max: [5, "rating Average must be less than 5"],
         required: [true, 'Logo image is required'],
     }
 
@@ -28,5 +30,5 @@ const reviewsSchema = new Schema({
 })
 
 
-const reviewsModel = model('Reviews', reviewsSchema)
+const reviewsModel = model('Review', reviewsSchema)
 export default reviewsModel
