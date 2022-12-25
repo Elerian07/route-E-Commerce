@@ -33,6 +33,10 @@ const couponSchema = new Schema({
         type: Types.ObjectId,
         ref: "User",
     },
+    usedBy: {
+        type: Types.ObjectId,
+        ref: "User",
+    },
     isStopped: {
         type: Boolean,
         default: false
