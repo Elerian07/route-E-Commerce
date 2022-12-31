@@ -4,26 +4,25 @@ import { create, findByIdAndUpdate, findOneAndUpdate } from "../../../../DB/DBMe
 
 
 
-
+//create
 export const addCoupon = asyncHandler(async (req, res, next) => {
     req.body.createdBy = req.user._id;
     let added = await create({ model: couponModel, data: req.body });
-    console.log(req.body);
-    res.status(201).json({ message: "Added", added })
+    return res.status(201).json({ message: "Added", added })
 })
 
-
+//update
 export const updateCoupon = asyncHandler(async (req, res, next) => {
     req.body.updatedBy = req.user._id;
     let { name } = req.params;
     let updated = await findOneAndUpdate({ model: couponModel, condition: name, data: req.body, options: { new: true } });
-    res.status(200).json({ message: "Updated", updated })
+    return res.status(200).json({ message: "Updated", updated })
 })
 
-
+//stop
 export const stopCoupon = asyncHandler(async (req, res, next) => {
     req.body.deletedBy = req.user._id;
     let { couponId } = req.params;
     let Stopped = await findByIdAndUpdate({ model: couponModel, condition: { _id: couponId }, data: { isStopped: true, deletedBy: req.user._id }, options: { new: true } });
-    res.status(200).json({ message: "Coupon has been Stopped", Stopped })
+    return res.status(200).json({ message: "Coupon has been Stopped", Stopped })
 })

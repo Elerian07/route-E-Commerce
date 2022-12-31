@@ -9,7 +9,7 @@ import couponModel from "../../../../DB/model/coupon.model.js";
 
 
 
-
+//create
 export const createOrder = asyncHandler(async (req, res, next) => {
     const { products, couponId } = req.body;
     const finalProducts = []
@@ -59,9 +59,9 @@ export const createOrder = asyncHandler(async (req, res, next) => {
     }
 
 
-    res.status(201).json({ message: "Order is placed", order })
+    return res.status(201).json({ message: "Order is placed", order })
 })
-
+//update
 export const updateOrder = asyncHandler(async (req, res, next) => {
     let { orderId } = req.params;
     let { products } = req.body;
@@ -104,10 +104,9 @@ export const updateOrder = asyncHandler(async (req, res, next) => {
         data: req.body,
         options: { new: true }
     });
-    res.status(200).json({ message: "order updated", updatedOrder })
+    return res.status(200).json({ message: "order updated", updatedOrder })
 })
-
-
+//delete
 export const deleteOrder = asyncHandler(async (req, res, next) => {
     let { id } = req.params;
     const order = await findById({ model: orderModel, condition: { _id: id } });
@@ -115,5 +114,5 @@ export const deleteOrder = asyncHandler(async (req, res, next) => {
         return next(new Error("order not found", { cause: 404 }))
     }
     const deleted = await findByIdAndDelete({ model: orderModel, condition: { _id: id } });
-    res.status(200).json({ message: "Order been deleted", deleted })
+    return res.status(200).json({ message: "Order been deleted", deleted })
 })

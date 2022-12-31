@@ -10,20 +10,20 @@ import slugify from "slugify";
 import { paginate } from "../../../services/pagination.js";
 
 
-
+//create
 export const addProduct = asyncHandler(async (req, res, next) => {
     let { subcategoryId, categoryId, brandId } = req.params;
     let subcategory = await findOne({ model: subcategoryModel, condition: { _id: subcategoryId, categoryId } })
     if (!subcategory) {
-        next(new Error("Subcategory or Category not found", { cause: 404 }))
+        return next(new Error("Subcategory or Category not found", { cause: 404 }))
     } else {
         let brand = await findById({ model: brandModel, condition: { _id: brandId } });
         if (!brand) {
-            next(new Error("Brand not found", { cause: 404 }))
+            return next(new Error("Brand not found", { cause: 404 }))
         } else {
 
             if (!req.files?.length) {
-                next(new Error("you have to add product images", { cause: 400 }));
+                return next(new Error("you have to add product images", { cause: 400 }));
             } else {
 
                 let { name, discount, price } = req.body;
@@ -52,9 +52,9 @@ export const addProduct = asyncHandler(async (req, res, next) => {
                     for (const id of imgsId) {
                         await cloudinary.uploader.destroy(id);
                     }
-                    next(new Error("Error when insert into database", { cause: 400 }));
+                    return next(new Error("Error when insert into database", { cause: 400 }));
                 } else {
-                    res.status(201).json({ message: "Created", product })
+                    return res.status(201).json({ message: "Created", product })
                 }
 
 
@@ -62,12 +62,12 @@ export const addProduct = asyncHandler(async (req, res, next) => {
         }
     }
 })
-
+//update
 export const updateProduct = asyncHandler(async (req, res, next) => {
     let { id } = req.params;
     let product = await findById({ model: productModel, condition: { _id: id } })
     if (!product) {
-        next(new Error("product not found", { cause: 404 }))
+        return next(new Error("product not found", { cause: 404 }))
     } else {
         let { price, discount, name, totalItems, soldItems } = req.body;
         if (name) {
@@ -116,7 +116,7 @@ export const updateProduct = asyncHandler(async (req, res, next) => {
                     await cloudinary.uploader.destroy(id)
                 }
             }
-            next(new Error("Database Error", { cause: 400 }))
+            return next(new Error("Database Error", { cause: 400 }))
         } else {
             if (req.body.publicImgsId) {
                 for (const id of product.publicImgsId) {
@@ -124,11 +124,11 @@ export const updateProduct = asyncHandler(async (req, res, next) => {
                 }
             }
 
-            res.status(200).json({ message: "Updated", updatedProduct })
+            return res.status(200).json({ message: "Updated", updatedProduct })
         }
     }
 })
-
+// get all products
 export const getAllProducts = asyncHandler(async (req, res, next) => {
 
     const populate = [
@@ -153,18 +153,18 @@ export const getAllProducts = asyncHandler(async (req, res, next) => {
 
     let products = await find({ model: productModel, limit: limit, skip: skip, populate: [...populate] })
     if (!products) {
-        next(new Error("Not found", { cause: 404 }))
+        return next(new Error("Not found", { cause: 404 }))
     } else {
-        res.status(200).json({ message: "Products found", products })
+        return res.status(200).json({ message: "Products found", products })
     }
 })
 
-
+//delete
 export const deleteProduct = asyncHandler(async (req, res, next) => {
     let { id } = req.params;
     let product = await findById({ model: productModel, condition: { _id: id } })
     if (!product) {
-        next(new Error("Product not found", { cause: 404 }))
+        return next(new Error("Product not found", { cause: 404 }))
     } else {
         if (product.createdBy.equals(req.user._id) || req.user.role != "Admin") {
             for (const id of product.publicImgsId) {
@@ -172,9 +172,9 @@ export const deleteProduct = asyncHandler(async (req, res, next) => {
                 let deletedImage = await cloudinary.uploader.destroy(id)
             }
             let deletedProduct = await findByIdAndDelete({ model: productModel, condition: { _id: id } })
-            res.status(200).json({ message: "Product has been deleted", deletedProduct })
+            return res.status(200).json({ message: "Product has been deleted", deletedProduct })
         } else {
-            next(new Error("you are not authorized to delete this product", { cause: 403 }))
+            return next(new Error("you are not authorized to delete this product", { cause: 403 }))
         }
 
     }

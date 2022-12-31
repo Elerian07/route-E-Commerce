@@ -6,7 +6,7 @@ import { asyncHandler } from "../../../services/asyncHandler.js";
 
 
 
-
+//create
 export const createCart = asyncHandler(async (req, res, next) => {
     let { _id } = req.user;
     req.body.userId = _id;
@@ -30,5 +30,5 @@ export const createCart = asyncHandler(async (req, res, next) => {
         }
     }
     let updated = await findOneAndUpdate({ model: cartModel, condition: { userId: req.user._id }, data: cart, options: { new: true } });
-    res.status(200).json({ message: "updated", updated })
+    return res.status(200).json({ message: "updated", updated })
 })

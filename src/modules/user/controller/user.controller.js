@@ -7,7 +7,7 @@ import { asyncHandler } from '../../../services/asyncHandler.js';
 import productModel from '../../../../DB/model/product.model.js';
 
 
-
+//rest password 
 export const changePassword = asyncHandler(async (req, res, next) => {
 
     let { currentPassword, newPassword, newCPassword } = req.body;
@@ -17,33 +17,33 @@ export const changePassword = asyncHandler(async (req, res, next) => {
         if (matched) {
             const hash = await bcrypt.hashSync(newPassword, parseInt(process.env.SALTROUND));
             let updatedUser = await findByIdAndUpdate({ model: userModel, condition: req.user._id, data: { password: hash }, options: { new: true } })
-            res.status(202).json({ message: "Updated", updatedUser })
+            return res.status(202).json({ message: "Updated", updatedUser })
         } else {
-            next(new Error("current password invalid", { cause: 406 }))
+            return next(new Error("current password invalid", { cause: 406 }))
         }
 
     } else {
-        next(new Error("new Password and new cPassword didn't match", { cause: 406 }))
+        return next(new Error("new Password and new cPassword didn't match", { cause: 406 }))
     }
 })
-
+//permanent delete of a user  
 export const deleteById = asyncHandler(async (req, res, next) => {
     let { id } = req.params;
     const deleteUser = await findByIdAndDelete({ model: userModel, condition: { _id: id } });
     const products = await deleteMany({ model: productModel, condition: { createdBy: id } })
 
     if (!deleteUser) {
-        next(new Error("user not found", { cause: 404 }))
+        return next(new Error("user not found", { cause: 404 }))
     } else {
-        res.status(200).json({ message: "deleted", deleteUser });
+        return res.status(200).json({ message: "deleted", deleteUser });
     }
 })
-
+//update
 export const updateUser = asyncHandler(async (req, res, next) => {
     let { name } = req.body;
     const user = await findById({ model: userModel, condition: req.user._id });
     if (!user) {
-        next(new Error("user not found", { cause: 404 }));
+        return next(new Error("user not found", { cause: 404 }));
     } else {
         let imgUrl = "";
         let publicImgId = "";
@@ -63,6 +63,6 @@ export const updateUser = asyncHandler(async (req, res, next) => {
             data: { userName: name, image: imgUrl, public_id: publicImgId },
             options: { new: true }
         });
-        res.status(200).json({ message: "updated", updatedUser })
+        return res.status(200).json({ message: "updated", updatedUser })
     }
 })

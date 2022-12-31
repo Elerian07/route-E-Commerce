@@ -9,14 +9,21 @@ import morgan from 'morgan'
 import * as indexRouter from './src/modules/index.router.js'
 import connectDB from './DB/connection.js'
 import { handleError } from './src/services/asyncHandler.js'
+import cors from 'cors'
 const app = express()
 // setup port and the baseUrl
-const port = process.env.PORT || 5000
+const port = process.env.PORT
 const baseUrl = process.env.BASEURL
+
+//cors
+app.use(cors({}))
 //convert Buffer Data
 app.use(express.json())
 app.use(morgan("dev"))
 //Setup API Routing 
+app.get("/", (req, res) => {
+    res.send("<h1>Home Page </h1>")
+})
 app.use(`${baseUrl}/auth`, indexRouter.authRouter)
 app.use(`${baseUrl}/user`, indexRouter.userRouter)
 app.use(`${baseUrl}/product`, indexRouter.productRouter)

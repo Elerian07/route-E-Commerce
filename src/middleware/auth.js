@@ -12,23 +12,23 @@ export const auth = (acceptRoles = [roles.User]) => {
         const { authorization } = req.headers
         console.log({ authorization });
         if (!authorization?.startsWith(process.env.BearerKey)) {
-            next(new Error("In-valid Bearer key", { cause: 400 }))
+            return next(new Error("In-valid Bearer key", { cause: 400 }))
         } else {
             const token = authorization.split(process.env.BearerKey)[1]
             const decoded = jwt.verify(token, process.env.tokenSignature)
             if (!decoded?.id || !decoded?.isLoggedIn) {
-                next(new Error("In-valid token payload", { cause: 400 }))
+                return next(new Error("In-valid token payload", { cause: 400 }))
             } else {
                 const user = await userModel.findById(decoded.id).select('email userName role')
                 if (!user) {
-                    next(new Error("Not register user", { cause: 404 }))
+                    return next(new Error("Not register user", { cause: 404 }))
                 } else {
                     if (acceptRoles.includes(user.role)) {
 
                         req.user = user
-                        next()
+                        return next()
                     } else {
-                        next(new Error("you are not authorized", { cause: 403 }))
+                        return next(new Error("you are not authorized", { cause: 403 }))
                     }
 
                 }

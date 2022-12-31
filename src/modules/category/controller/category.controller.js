@@ -5,54 +5,54 @@ import { asyncHandler } from "../../../services/asyncHandler.js";
 import cloudinary from "../../../services/cloudinary.js";
 
 
-
+//create
 export const addCategory = asyncHandler(async (req, res, next) => {
     if (!req.file) {
-        next(new Error("you have to upload an image", { cause: 422 }))
+        return next(new Error("you have to upload an image", { cause: 422 }))
     } else {
         let { name } = req.body;
         let { secure_url, public_id } = await cloudinary.uploader.upload(req.file.path, {
             folder: "category"
         })
         let result = await create({ model: categoryModel, data: { name, image: secure_url, createdBy: req.user._id, public_id } })
-        res.status(201).json({ message: "Category Created", result })
+        return res.status(201).json({ message: "Category Created", result })
     }
 })
-
+//find
 export const findCategory = asyncHandler(async (req, res, next) => {
     let { search } = req.query;
     let category = await findOne({ model: categoryModel, condition: { name: search } });
     if (!category) {
-        next(new Error("Category not found", { cause: 404 }))
+        return next(new Error("Category not found", { cause: 404 }))
     } else {
-        res.status(200).json({ message: "found", category })
+        return res.status(200).json({ message: "found", category })
     }
 })
-
+//delete
 export const deleteCategory = asyncHandler(async (req, res, next) => {
     let { id } = req.params;
     let category = await findById({ model: categoryModel, condition: { _id: id } })
     if (!category) {
-        next(new Error("Category not found", { cause: 404 }))
+        return next(new Error("Category not found", { cause: 404 }))
     } else {
         if (category.createdBy.equals(req.user._id)) {
             let deletedImage = await cloudinary.uploader.destroy(category.public_id)
             let deletedCategory = await findByIdAndDelete({ model: categoryModel, condition: { _id: id } })
             res.status(200).json({ message: "Category has been deleted", deletedCategory })
         } else {
-            next(new Error("you are not authorized to delete this category", { cause: 403 }))
+            return next(new Error("you are not authorized to delete this category", { cause: 403 }))
         }
 
     }
 })
 
-
+//update
 export const updateCategory = asyncHandler(async (req, res, next) => {
     let { _id } = req.params;
     let { name } = req.body;
     const category = await findById({ model: categoryModel, condition: _id });
     if (!category) {
-        next(new Error("category not found", { cause: 404 }));
+        return next(new Error("category not found", { cause: 404 }));
     } else {
         let imgUrl = "";
         let publicImgId = "";
@@ -72,6 +72,6 @@ export const updateCategory = asyncHandler(async (req, res, next) => {
             data: { name, image: imgUrl, public_id: publicImgId },
             options: { new: true }
         });
-        res.status(200).json({ message: "updated", updatedCategory })
+        return res.status(200).json({ message: "updated", updatedCategory })
     }
 })
