@@ -3,7 +3,7 @@ import { fileURLToPath } from 'url'
 import dotenv from 'dotenv'
 //set directory dirname 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-dotenv.config({ path: path.join(__dirname, './config/.env') })
+dotenv.config({ path: path.join(__dirname, './.env') })
 import express from 'express'
 import morgan from 'morgan'
 import * as indexRouter from './src/modules/index.router.js'
