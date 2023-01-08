@@ -19,7 +19,14 @@ const baseUrl = process.env.BASEURL
 app.use(cors({}))
 //convert Buffer Data
 app.use(express.json())
-app.use(morgan("dev"))
+if (process.env.ENV == "dev") {
+    app.use(express.static(path.join(__dirname, './public')))
+    app.use(morgan('dev'))
+
+} else {
+
+    app.use(morgan("COMMON"))
+}
 //Setup API Routing 
 app.get("/", (req, res) => {
     res.send("<h1>Home Page</h1 > <br> <h5>By Mohamed Elerian</h5>")
