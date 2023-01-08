@@ -9,14 +9,14 @@ import morgan from 'morgan'
 import * as indexRouter from './src/modules/index.router.js'
 import connectDB from './DB/connection.js'
 import { handleError } from './src/services/asyncHandler.js'
-import cors from 'cors'
+
 const app = express()
 // setup port and the baseUrl
 const port = process.env.PORT
 const baseUrl = process.env.BASEURL
 
-//cors
-app.use(cors({}))
+// //cors
+// app.use(cors({}))
 //convert Buffer Data
 app.use(express.json())
 if (process.env.ENV == "dev") {
