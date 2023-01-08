@@ -5,7 +5,7 @@ import { endpoints } from './wishList.endPoints.js';
 import * as wishListController from './controller/wishList.controller.js';
 const router = Router({ mergeParams: true })
 
-app.get("/", (req, res) => {
+router.get("/", (req, res) => {
     res.send("<h1>Wishlist Page</h1 > <br> <h5>By Mohamed Elerian</h5>")
 })
 
